@@ -22,6 +22,7 @@
 	},
 	"homepage": "https://github.com/lenmorld/react_workshop#readme",
 	"dependencies": {
+		"@babel/plugin-proposal-class-properties": "^7.4.4",
 		"express": "^4.16.3",
 		"html-loader": "^0.5.5",
 		"html-webpack-plugin": "^3.2.0",
