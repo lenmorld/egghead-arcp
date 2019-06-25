@@ -7,4 +7,9 @@ class Toggle extends React.Component {
 	}
 }
 
-export default Toggle;
+// passing a function prop to a stateless component
+function Usage({ onToggle = (...args) => console.log("onToggle", ...args) }) {
+	return <Toggle onToggle={onToggle} />;
+}
+
+export default Usage;
