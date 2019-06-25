@@ -2,8 +2,9 @@ import React from "react";
 import { Switch } from "./Switch";
 
 class Toggle extends React.Component {
+	state = { on: false };
 	render() {
-		return <Switch />;
+		return <Switch on={this.state.on} />;
 	}
 }
 
