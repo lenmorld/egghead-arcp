@@ -23,7 +23,12 @@ class Toggle extends React.Component {
 }
 
 // passing a function prop to a stateless component
-function Usage({ onToggle = (...args) => console.log("onToggle", ...args) }) {
+// destructuring to only get the onToggle prop
+function Usage({
+	onToggle = (...args) => console.log("onToggle", ...args),
+	name = "Benny"
+}) {
+	console.log(name);
 	return <Toggle onToggle={onToggle} />;
 }
 
