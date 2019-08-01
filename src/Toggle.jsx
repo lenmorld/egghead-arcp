@@ -6,16 +6,13 @@ class Toggle extends React.Component {
 	state = { on: false };
 	toggle = () =>
 		this.setState(
-			prevState => ({ on: !prevState.on }),
+			({ on }) => ({ on: !on }),
 			() => {
 				this.props.onToggle(this.state.on);
 			}
 		);
 	// setState uses function (instead of object)
 	// and runs callback after
-
-	// prevState => ({ on: !prevState.on })
-	// {on} => ({on: !on})
 
 	render() {
 		return <Switch on={this.state.on} onClick={this.toggle} />;
