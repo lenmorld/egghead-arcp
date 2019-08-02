@@ -10,3 +10,8 @@ class App extends React.Component {
 }
 
 export default App;
+
+/*
+<Usage onToggle={(...args) => console.log("[LENNY] onToggle", ...args)}
+		name="lenny" />
+*/
