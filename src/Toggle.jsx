@@ -1,5 +1,5 @@
 /*
-	Lesson 4
+	Lesson 4: Using Context in Compound Component
 */
 
 import React from "react";
