@@ -14,3 +14,33 @@ has access to the parent Toggle's state (on) and handler method (toggle)
 
 
 4 - Context : make compound component more flexible, so it won't break with say, `<div><Toggle.Button></div>`
+
+
+5 - Validate context consumer : what if a Consumer is rendered outside of a Provider
+e.g. replace <Toggle ... with <div...
+
+Encapsulate consumer in a function, so we can add validation
+this is possible because the child of a context consumer is a function
+
+```javascript
+<ToggleContext.Consumer>{(contextValue) => blah}</ToggleContext.Consumer>
+```
+
+```javascript
+function ToggleConsumer(props) {
+	return (
+		<ToggleContext.Consumer>
+			{context => {
+					if (!context) {
+					throw new Error('must use consumer inside provider');
+				}
+				return props.children(context)
+			}}
+		</ToggleContext.Consumer>
+	)
+}
+...
+
+<ToggleConsumer>{(contextValue) => blah}</ToggleConsumer>
+
+```
