@@ -10,6 +10,8 @@ const renderUI = ({ on, toggle }) => {
 }
 
 class Toggle extends React.Component {
+	static defaultProps = { renderUI }
+
 	state = { on: false };
 	toggle = () =>
 		this.setState(
@@ -28,7 +30,8 @@ class Toggle extends React.Component {
 
 	render() {
 		// return this.renderUI({
-		return renderUI({
+		// return renderUI({
+		return this.props.renderUI({
 			on: this.state.on,
 			toggle: this.toggle
 		});
@@ -46,19 +49,33 @@ function Usage({
 	// render a div, a Switch, a custom button
 	// using the Component
 	return (
-		<Toggle onToggle={onToggle}>
-			{({ on, toggle }) => (
-				<div>
-					{on ? 'The button is on' : 'The button is off'}
-					<Switch on={on} onClick={toggle} />
-					<hr />
-					<button aria-label="custom-button" onClick={toggle}>
-						{on ? 'on' : 'off'}
-					</button>
-				</div>
-			)}
+		<Toggle onToggle={onToggle} renderUI={({ on, toggle }) => (
+			<div>
+				{on ? 'The button is on' : 'The button is off'}
+				<Switch on={on} onClick={toggle} />
+				<hr />
+				<button aria-label="custom-button" onClick={toggle}>
+					{on ? 'on' : 'off'}
+				</button>
+			</div>
+		)}>
 		</Toggle>
 	)
+
+	// return (
+	// 	<Toggle onToggle={onToggle}>
+	// 		{({ on, toggle }) => (
+	// 			<div>
+	// 				{on ? 'The button is on' : 'The button is off'}
+	// 				<Switch on={on} onClick={toggle} />
+	// 				<hr />
+	// 				<button aria-label="custom-button" onClick={toggle}>
+	// 					{on ? 'on' : 'off'}
+	// 				</button>
+	// 			</div>
+	// 		)}
+	// 	</Toggle>
+	// )
 }
 
 export default Usage;

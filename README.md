@@ -80,3 +80,34 @@ Currently the <Toggle /> component has complete control over rendering,
 and it's not too flexible for Usage
 suppose component user wants to render the logic in the component 
 in a different way, we are currently limited to how the Toggle renders it
+
+1st: separate rendering into a function outside class definition,
+since it doesn't need any instance method/props
+
+```javascript
+const renderUI = ({ on, toggle }) => {
+	return <Switch on={on} onClick={toggle} />;
+}
+...
+	render() {
+		return renderUI({
+```
+
+2nd: make `renderUI` a prop, that defaults to the function
+
+```javascript
+static defaultProps = { renderUI }
+...
+	render() {
+		return this.props.renderUI({
+
+...users:
+		<Toggle onToggle={onToggle} renderUI={({ on, toggle }) => (
+				<div>any use of `on`, `toggle`</div>
+		)} />
+
+```
+this way, component users can use this API
+to supply their own `render` prop
+
+3rd:
