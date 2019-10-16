@@ -20,6 +20,8 @@ class Toggle extends React.Component {
 	// SAME AS
 	// {({ on }) => (on ? children : null)}
 
+	// these compound components will now *consume* these values, rather than accept them as props
+
 	static On = ({ children }) => (
 		<ToggleContext.Consumer>
 			{contextValue => (contextValue.on ? children : null)}
@@ -55,6 +57,9 @@ class Toggle extends React.Component {
 	// 	);
 	// }
 
+	// instead of explicitly distributing on, toggle
+	// expose it via context to all children
+
 	render() {
 		return (
 			<ToggleContext.Provider
@@ -84,7 +89,7 @@ export default Usage;
 
 /*
 Make Compound React Components Flexible
-Our current compound component implementation is great, but it's limited in that users cannot render the structure they need. 
+Our current compound component implementation is great, but it's limited in that users cannot render the structure they need.
 e.g.
 		<Toggle onToggle={onToggle}>
 			<Toggle.On>The button is on.</Toggle.On>
