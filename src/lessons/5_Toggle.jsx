@@ -6,7 +6,16 @@ import React from "react";
 import { Switch } from "./Switch";
 
 const ToggleContext = React.createContext();
+// add default? but component still won't work
+// since consumer wont get the updated states
+/*
+	const ToggleContext = React.createContext({
+		on: false,
+		toggle: () => {},
+	});
+*/
 
+// encapsulate Consumer and validation logic inside function
 function ToggleConsumer(props) {
 	return (
 		<ToggleContext.Consumer>
@@ -41,25 +50,22 @@ class Toggle extends React.Component {
 		</ToggleConsumer>
 	);
 
+	state = { on: false };
 	toggle = () =>
 		this.setState(
 			({ on }) => ({ on: !on }),
-			() => this.props.onToggle(this.state.on)
+			() => {
+				this.props.onToggle(this.state.on);
+			}
 		);
-	state = { on: false, toggle: this.toggle };
 
 	render() {
-		/*
+		return (
 			<ToggleContext.Provider
 				value={{
 					on: this.state.on,
 					toggle: this.toggle
 				}}
-			>
-		*/
-		return (
-			<ToggleContext.Provider
-				value={this.state}
 			>
 				{this.props.children}
 			</ToggleContext.Provider>

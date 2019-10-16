@@ -19,7 +19,7 @@ has access to the parent Toggle's state (on) and handler method (toggle)
 5 - Validate context consumer : what if a Consumer is rendered outside of a Provider
 e.g. replace <Toggle ... with <div...
 
-Encapsulate consumer in a function, so we can add validation
+-> Encapsulate consumer in a function, so we can add validation
 this is possible because the child of a context consumer is a function
 
 ```javascript
@@ -40,7 +40,35 @@ function ToggleConsumer(props) {
 	)
 }
 ...
-
 <ToggleConsumer>{(contextValue) => blah}</ToggleConsumer>
+```
 
+6 - reducing re-renders
+
+everytime value exposed by Provider changes, all Consumers are re-rendered
+right now, it changes every single render
+since value is recreated every render 
+```javascript
+	<ToggleContext.Provider
+		value={{
+			on: this.state.on,
+			toggle: this.toggle
+		}}
+	>
+```
+
+but for our use case, it should only re-render when `this.state.on` changes
+
+-> put event handler in state, since it shouldn't change
+so here we put entire state in provider value
+
+it might be weird to put event handler in state, 
+but this is a nice tradeoff when using context
+
+```javascript
+state = { on: false, toggle: this.toggle };
+...
+<ToggleContext.Provider
+	value={this.state}
+>
 ```
