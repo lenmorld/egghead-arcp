@@ -1,20 +1,45 @@
 /*
-	Lesson 3
+	Lesson 4: Using Context in Compound Component
 */
 
 import React from "react";
 import { Switch } from "./Switch";
 
-// const ToggleOn = ({ on, children }) => (on ? children : null);
+const ToggleContext = React.createContext();
 
 class Toggle extends React.Component {
-	// <Toggle.On /> === <ToggleOn>
-	// it's just a simple way of having a stateless component
-	// but inside an existing class as a static function
-	static On = ({ on, children }) => (on ? children : null);
-	static Off = ({ on, children }) => (on ? null : children);
-	static Button = ({ on, toggle, ...props }) => (
-		<Switch on={on} onClick={toggle} {...props} />
+	// static On = ({ on, children }) => (on ? children : null);
+	// static Off = ({ on, children }) => (on ? null : children);
+	// static Button = ({ on, toggle, ...props }) => (
+	// 	<Switch on={on} onClick={toggle} {...props} />
+	// );
+
+	// consume context values instead of accepting them as props
+
+	// {(contextValue) => (contextValue.on ? children : null)}
+	// SAME AS
+	// {({ on }) => (on ? children : null)}
+
+	// these compound components will now *consume* these values, rather than accept them as props
+
+	static On = ({ children }) => (
+		<ToggleContext.Consumer>
+			{contextValue => (contextValue.on ? children : null)}
+		</ToggleContext.Consumer>
+	);
+
+	static Off = ({ children }) => (
+		<ToggleContext.Consumer>
+			{contextValue => (contextValue.on ? null : children)}
+		</ToggleContext.Consumer>
+	);
+
+	static Button = props => (
+		<ToggleContext.Consumer>
+			{contextValue => (
+				<Switch on={contextValue.on} onClick={contextValue.toggle} {...props} />
+			)}
+		</ToggleContext.Consumer>
 	);
 
 	state = { on: false };
@@ -26,28 +51,36 @@ class Toggle extends React.Component {
 			}
 		);
 
+	// render() {
+	// 	return React.Children.map(this.props.children, childElement =>
+	// 		React.cloneElement(childElement, { on: this.state.on, toggle: this.toggle })
+	// 	);
+	// }
+
+	// instead of explicitly distributing on, toggle
+	// expose it via context to all children
+
 	render() {
-		// debugger;
-		// for every child passed to this component, create a copy and inject the props
-		return React.Children.map(this.props.children, childElement =>
-			React.cloneElement(childElement, { on: this.state.on, toggle: this.toggle })
+		return (
+			<ToggleContext.Provider
+				value={{
+					on: this.state.on,
+					toggle: this.toggle
+				}}
+			>
+				{this.props.children}
+			</ToggleContext.Provider>
 		);
-		// return <Switch on={this.state.on} onClick={this.toggle} />;
 	}
 }
 function Usage({ onToggle = (...args) => console.log("onToggle", ...args) }) {
-	// 3 compound components implicitly accessing the state
-	debugger;
 	return (
 		<Toggle onToggle={onToggle}>
-			{/* <ToggleOn>The button is on.</ToggleOn> */}
-
-			{/* Toggle.On and Toggle.Off are like labels */}
 			<Toggle.On>The button is on.</Toggle.On>
 			<Toggle.Off>The button is off.</Toggle.Off>
-
-			{/* this is the actual switch */}
-			<Toggle.Button />
+			<div>
+				<Toggle.Button />
+			</div>
 		</Toggle>
 	);
 }
@@ -55,12 +88,16 @@ function Usage({ onToggle = (...args) => console.log("onToggle", ...args) }) {
 export default Usage;
 
 /*
-Compound Components
+Make Compound React Components Flexible
+Our current compound component implementation is great, but it's limited in that users cannot render the structure they need.
+e.g.
+		<Toggle onToggle={onToggle}>
+			<Toggle.On>The button is on.</Toggle.On>
+			<Toggle.Off>The button is off.</Toggle.Off>
+			<div>   <------- NOT A REACT CHILDREN
+				<Toggle.Button />
+			</div>
+		</Toggle>
 
-Write Compound Components
-Compound components give more rendering control to the user. 
-The functionality of the component stays intact while how it looks and the order of the children can be changed at will. 
-We get this functionality by using the special `React.Children.map` function to map over the children given to our `<Toggle/>` component. 
-We map over the children to pass the on state as a prop to its children.
-We move the visual pieces of the component out into function components and add them as static properties to `<Toggle/>`.
+Let's allow the user to have more flexibility by using React context to share the implicit state to our child `<Toggle/>` components. We will walk through using React's official context API with `React.createContext` and use the given `Provider` and `Consumer` components to share state implicitly between our compound components giving our users the flexibility they need out of our component.
 */

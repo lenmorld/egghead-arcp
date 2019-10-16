@@ -1,26 +1,16 @@
-# React workshop
+yarn dev
+
+localhost:8080
 
 
-## To dev/ follow workshop:
+1, 2 - simple toggle component
 
-```
-$ npm checkout dev
-$ npm install
-$ npm run dev
-```
+3- compound component : sharing state implicitly with child components
+each innner compound component (Toggle.On, Toggle.Off, Toggle.Button all implemented as a static stateless component) 
+has access to the parent Toggle's state (on) and handler method (toggle) 
+- using React.Children.map and React.cloneElement
 
-> server runs on 4001
-
-> `webpack-dev-server` for React runs on 4000
-> which enables hot-reloading
+✅ component users can render in any order, without any render config whatsoever
 
 
-## To deploy:
-
-```
-$ npm run build
-$ npm start
-```
-
-> builds `bundle.js` for production
-> node server runs on 4000
+4 - Context : make compound component more flexible, so it won't break with say, `<div><Toggle.Button></div>`
