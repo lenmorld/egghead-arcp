@@ -72,3 +72,11 @@ state = { on: false, toggle: this.toggle };
 	value={this.state}
 >
 ```
+
+7 - render props
+step back from Context, we re-use Lesson 1's simple Toggle
+
+Currently the <Toggle /> component has complete control over rendering, 
+and it's not too flexible for Usage
+suppose component user wants to render the logic in the component 
+in a different way, we are currently limited to how the Toggle renders it
