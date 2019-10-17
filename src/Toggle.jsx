@@ -1,5 +1,5 @@
 /*
-	Lesson 7: Validate compound component context consumers
+	Lesson 8
 */
 
 import React from "react";
@@ -21,30 +21,28 @@ class Toggle extends React.Component {
 			}
 		);
 
-	// pure function, but we don't need this on the instance (this.renderUI)
-	// since it's not using any instance methods, props
-	// we can move this to outside
-	// renderUI({ on, toggle }) {
-	// 	return <Switch on={on} onClick={toggle} />;
-	// }
+	getStateAndHelpers() {
+		return {
+			on: this.state.on,
+			toggle: this.toggle,
+			togglerProps: {
+				onClick: this.toggle,	// e.g. this can be later changed to a keydown, which will be an impl. detail
+				// that the consumers don't need to know about
+				'aria-pressed': this.state.on,
+			}
+		}
+	}
 
 	render() {
-		// 1 return this.renderUI({
-		// 2 return renderUI({
-		// 3 return this.props.renderUI({
-		return this.props.children({
-			on: this.state.on,
-			toggle: this.toggle
-		});
+		// return this.props.children({
+		// 	on: this.state.on,
+		// 	toggle: this.toggle
+		// });
+
+		// generalize the stateAndHelper getter
+		return this.props.children(this.getStateAndHelpers());
 	}
 }
-
-// implement previous API we had with the new one
-// let's say we have a common use case CommonToggle
-// that provides your own children function that renders the common UI
-// e.g <Switch
-// CommonToggle has a limited flexbility but a simpler API
-// built on top of render prop
 
 function CommonToggle(props) {
 	return <Toggle {...props}>
@@ -57,29 +55,6 @@ function Usage({
 	name = "Benny"
 }) {
 	console.log(name);
-	// return <Toggle onToggle={onToggle} />;
-
-	// But we want to do this from the Component user! (Usage)
-	// render a div, a Switch, a custom button
-	// using the Component
-
-	// 1
-	// return (
-	// 	<Toggle onToggle={onToggle} renderUI={({ on, toggle }) => (
-	// 		<div>
-	// 			{on ? 'The button is on' : 'The button is off'}
-	// 			<Switch on={on} onClick={toggle} />
-	// 			<hr />
-	// 			<button aria-label="custom-button" onClick={toggle}>
-	// 				{on ? 'on' : 'off'}
-	// 			</button>
-	// 		</div>
-	// 	)}>
-	// 	</Toggle>
-	// )
-
-	// 2
-	// use with children instead for best reusability
 	// return (
 	// 	<Toggle onToggle={onToggle}>
 	// 		{({ on, toggle }) => (
@@ -95,9 +70,28 @@ function Usage({
 	// 	</Toggle>
 	// )
 
-	// 3
-	// use a simpler API, which is a common use case
-	return <CommonToggle onToggle={onToggle} />
+	// introduce a togglerProps (which replaces the onToggle)
+	// that can be spread across any toggle button
+	// that the consumers want to render
+
+	// consumer doesnt need to know how to wire up these buttons <Switch /> and <button>
+	// to be toggles in this toggle component
+
+	return (
+		<Toggle onToggle={onToggle}>
+			{({ on, togglerProps }) => (
+				<div>
+					{on ? 'The button is on' : 'The button is off'}
+					<Switch on={on} {...togglerProps} />
+					<hr />
+					<button aria-label="custom-button" {...togglerProps}>
+						{on ? 'on' : 'off'}
+					</button>
+				</div>
+			)}
+		</Toggle>
+	)
+
 }
 
 export default Usage;

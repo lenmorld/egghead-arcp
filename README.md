@@ -113,3 +113,47 @@ to supply their own JSX using `render` prop
 3rd:
 rename to `this.props.children()` instead of `renderUI`
 so users can sandwich JSX
+
+## Render prop
+most primitive from of UI flexibility
+any other pattern can be implemented on top of this API
+
+e.g. implement
+
+8. Prop Collections with Render Props
+
+We extend the API even further by allowing 
+props (toggler props object) to be spread on whatever element (any button they want to represent the toggle, that fits their ise case)
+the consumer will use on their render
+
+```javascript
+	getStateAndHelpers() {
+		return {
+			on: this.state.on,
+			toggle: this.toggle,
+			togglerProps: {
+				onClick: this.toggle,	// e.g. this can be later changed to a keydown, which will be an impl. detail
+				// that the consumers don't need to know about
+				'aria-pressed': this.state.on,
+			}
+		}
+	}
+
+	render...
+		return this.props.children(this.getStateAndHelpers());
+
+
+	usage... note togglerProps, which encapsulates the handler and a11y features
+			<Toggle onToggle={onToggle}>
+			{({ on, togglerProps }) => (
+				<div>
+					{on ? 'The button is on' : 'The button is off'}
+					<Switch on={on} {...togglerProps} />
+					<hr />
+					<button aria-label="custom-button" {...togglerProps}>
+						{on ? 'on' : 'off'}
+					</button>
+				</div>
+			)}
+		</Toggle>
+```
