@@ -29,13 +29,27 @@ class Toggle extends React.Component {
 	// }
 
 	render() {
-		// return this.renderUI({
-		// return renderUI({
-		return this.props.renderUI({
+		// 1 return this.renderUI({
+		// 2 return renderUI({
+		// 3 return this.props.renderUI({
+		return this.props.children({
 			on: this.state.on,
 			toggle: this.toggle
 		});
 	}
+}
+
+// implement previous API we had with the new one
+// let's say we have a common use case CommonToggle
+// that provides your own children function that renders the common UI
+// e.g <Switch
+// CommonToggle has a limited flexbility but a simpler API
+// built on top of render prop
+
+function CommonToggle(props) {
+	return <Toggle {...props}>
+		{({ on, toggle }) => <Switch on={on} onClick={toggle} />}
+	</Toggle>
 }
 
 function Usage({
@@ -48,20 +62,24 @@ function Usage({
 	// But we want to do this from the Component user! (Usage)
 	// render a div, a Switch, a custom button
 	// using the Component
-	return (
-		<Toggle onToggle={onToggle} renderUI={({ on, toggle }) => (
-			<div>
-				{on ? 'The button is on' : 'The button is off'}
-				<Switch on={on} onClick={toggle} />
-				<hr />
-				<button aria-label="custom-button" onClick={toggle}>
-					{on ? 'on' : 'off'}
-				</button>
-			</div>
-		)}>
-		</Toggle>
-	)
 
+	// 1
+	// return (
+	// 	<Toggle onToggle={onToggle} renderUI={({ on, toggle }) => (
+	// 		<div>
+	// 			{on ? 'The button is on' : 'The button is off'}
+	// 			<Switch on={on} onClick={toggle} />
+	// 			<hr />
+	// 			<button aria-label="custom-button" onClick={toggle}>
+	// 				{on ? 'on' : 'off'}
+	// 			</button>
+	// 		</div>
+	// 	)}>
+	// 	</Toggle>
+	// )
+
+	// 2
+	// use with children instead for best reusability
 	// return (
 	// 	<Toggle onToggle={onToggle}>
 	// 		{({ on, toggle }) => (
@@ -76,6 +94,10 @@ function Usage({
 	// 		)}
 	// 	</Toggle>
 	// )
+
+	// 3
+	// use a simpler API, which is a common use case
+	return <CommonToggle onToggle={onToggle} />
 }
 
 export default Usage;

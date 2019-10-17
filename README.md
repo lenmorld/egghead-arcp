@@ -103,11 +103,13 @@ static defaultProps = { renderUI }
 
 ...users:
 		<Toggle onToggle={onToggle} renderUI={({ on, toggle }) => (
-				<div>any use of `on`, `toggle`</div>
+				<div>any JSX we want that uses `on`, `toggle`</div>
 		)} />
 
 ```
 this way, component users can use this API
-to supply their own `render` prop
+to supply their own JSX using `render` prop
 
 3rd:
+rename to `this.props.children()` instead of `renderUI`
+so users can sandwich JSX
