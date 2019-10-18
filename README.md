@@ -5,7 +5,13 @@ localhost:8080
 
 1, 2 - simple toggle component
 
-3- compound component : sharing state implicitly with child components
+> a simple toggle component which will serve as the foundation for the rest of the course. Kent walks through how to create a simple toggle with React setState. He shows us how to extend the functionality of the toggle by safely adding an onToggle prop that gets called after state is updated.
+
+3- compound component : 
+
+> Compound components give more rendering control to the user. The functionality of the component stays intact while how it looks and the order of the children can be changed at will. We get this functionality by using the special React.Children.map function to map over the children given to our <Toggle/> component. We map over the children to pass the on state as a prop to its children. We move the visual pieces of the component out into function components and add them as static properties to <Toggle/>.
+
+sharing state implicitly with child components
 each innner compound component (Toggle.On, Toggle.Off, Toggle.Button all implemented as a static stateless component) 
 has access to the parent Toggle's state (on) and handler method (toggle) 
 - using React.Children.map and React.cloneElement
@@ -15,8 +21,14 @@ has access to the parent Toggle's state (on) and handler method (toggle)
 
 4 - Context : make compound component more flexible, so it won't break with say, `<div><Toggle.Button></div>`
 
+> Our current compound component implementation is great, but it's limited in that users cannot render the structure they need. Let's allow the user to have more flexibility by using React context to share the implicit state to our child <Toggle/> components. We will walk through using React's official context API with React.createContext and use the given Provider and Consumer components to share state implicitly between our compound components giving our users the flexibility they need out of our component.
 
-5 - Validate context consumer : what if a Consumer is rendered outside of a Provider
+5 - Validate context consumer 
+
+> If someone uses one of our compound components outside the React.createContext <ToggleContext.Provider />, they will experience a confusing error. We could provide a default value for our context, but in our situation that doesn't make sense. Instead let's build a simple function component which does validation of our contextValue that comes from the <ToggleContext.Consumer />. That way we can provide a more helpful error message.
+
+
+what if a Consumer is rendered outside of a Provider
 e.g. replace <Toggle ... with <div...
 
 -> Encapsulate consumer in a function, so we can add validation
@@ -44,6 +56,8 @@ function ToggleConsumer(props) {
 ```
 
 6 - reducing re-renders
+
+> Due to the way that React Context Providers work, our current implementation re-renders all our compound component consumers with every render of the <Toggle /> which could lead to unnecessary re-renders. Let's fix that by ensuring that the value prop we pass to the <ToggleContext.Provider /> is only changed when the state changes.
 
 everytime value exposed by Provider changes, all Consumers are re-rendered
 right now, it changes every single render
@@ -74,6 +88,9 @@ state = { on: false, toggle: this.toggle };
 ```
 
 7 - render props
+
+> A render prop is a function that renders JSX based on state and helper arguments. This pattern is the most flexible way to share component logic while giving complete UI flexibility.
+
 step back from Context, we re-use Lesson 1's simple Toggle
 
 Currently the <Toggle /> component has complete control over rendering, 
@@ -121,6 +138,8 @@ any other pattern can be implemented on top of this API
 e.g. implement
 
 8. Prop Collections with Render Props
+
+> Sometimes you have common use cases that require common props to be applied to certain elements. You can collect these props into an object for users to simply apply to their elements and we'll see how to do that in this lesson.
 
 We extend the API even further by allowing 
 props (toggler props object) to be spread on whatever element (any button they want to represent the toggle, that fits their ise case)
