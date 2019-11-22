@@ -176,3 +176,40 @@ the consumer will use on their render
 			)}
 		</Toggle>
 ```
+
+
+9. Prop getters
+
+> enable composition of users' custom props and our required toggler props by using a convenience method `getTogglerProps`, along with a `callAll` that calls all functions given all args (useful for e.g. calling both onClick from custom and ours with the same args)
+> perfect for custom `onClick`, `className`, other props by users that we want to just pass through to our component, without exposing implementation details
+
+```javascript
+	getTogglerProps = ({onClick, className, ...props}) => {
+		// debugger;
+		return {
+			...props,
+			onClick: callAll(onClick, this.toggle),
+			className: `${className} our-class-name`,
+			'aria-pressed': this.state.on,
+		}
+	}
+```
+
+usage:
+```javascript
+	<Switch {...getTogglerProps({on})} />
+	<hr />
+	<button 
+		{...getTogglerProps({
+			'aria-label':"custom-button", // custom
+			'aria-pressed': null, // custom
+			id:"custom-button-id", // custom
+			className: "custom-class", // custom
+			onClick:onButtonClick    // custom
+		})}
+		>
+		{on ? 'on' : 'off'}
+	</button>
+```
+
+When you're using prop collections, sometimes you can run into trouble with exposing implementation details of your prop collections. In this lesson, we'll see how we can abstract that away by simply creating a function called a prop getter that will compose the user's props with our prop collection.
