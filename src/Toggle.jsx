@@ -1,5 +1,5 @@
 /*
-	Lesson 10 Use Component State initializers
+	Lesson 11 Custom state reducers
 */
 
 import React from "react";
@@ -20,13 +20,23 @@ class Toggle extends React.Component {
 		renderUI,
 	}
 
-	// state = { on: false }; // DRY this up as initialState
-	// initialState = { on: false}
 	initialState = { on: this.props.initialOn } // make this customizable by user
 	state = this.initialState
 
+	// create our own setState with the same API as orig setState
+	internalSetState(changes, callback) {
+		this.setState((currentState) => {
+			const changesObject = typeof changes === 'function' ? changes(currentState) : changes;
+			// user's custom logic to modify state
+			const reducedChanges = this.props.stateReducer(currentState, changesObject);
+			return reducedChanges;
+		}, callback)
+		// this.props.stateReducer
+	}
+
 	toggle = () =>
-		this.setState(
+		// this.setState(
+		this.internalSetState(
 			({ on }) => ({ on: !on }),
 			() => {
 				this.props.onToggle(this.state.on); // call custom from user
@@ -34,7 +44,8 @@ class Toggle extends React.Component {
 		);
 
 	reset = () =>
-		this.setState(this.initialState, () => {
+		// this.setState(this.initialState, () => {
+		this.internalSetState(this.initialState, () => {
 			this.props.onReset(this.state.on)	// call custom from user
 		})
 
@@ -61,55 +72,65 @@ class Toggle extends React.Component {
 	}
 }
 
-function onButtonClick() {
-	console.log("waa");
-}
 
-// initial props go here
-function Usage({
-	initialOn=  false, // provide custom initial state
-	onToggle = (...args) => console.log("onToggle", ...args),
-	onReset = (...args) => { console.log("onReset", ...args) }, // provide custom reset function
-	name = "Benny"
-}) {
+class Usage extends React.Component {
+	static defaultProps = {
+	  onToggle: (...args) => console.log('onToggle', ...args),
+	  onReset: (...args) => console.log('onReset', ...args),
+	}
+	initialState = {timesClicked: 0}
+	state = this.initialState
+	handleToggle = (...args) => {
+	  this.setState(({timesClicked}) => ({
+		timesClicked: timesClicked + 1,
+	  }))
+	  this.props.onToggle(...args)
+	}
+	handleReset = (...args) => {
+	  this.setState(this.initialState)
+	  this.props.onReset(...args)
+	}
 
-	return (
-		<Toggle 
-			initialOn={initialOn}
-			onToggle={onToggle}
-			onReset={onReset}
-			>
-			{({on, getTogglerProps, reset}) => (
-				<div>
-					<Switch {...getTogglerProps({on})} />
-					<hr />
-					<button onClick={reset}>Reset</button>
+	// before we call setState in the Toggle component, 
+	// the consumer has a chance to modify the state we're about to set. 
+	toggleStateReducer = (state, changes) => {
+	  if (this.state.timesClicked >= 4) {
+		return {...changes, on: false}
+	  }
+	  return changes
+	}
+	render() {
+	  const {timesClicked} = this.state
+	  return (
+		<Toggle
+		  stateReducer={this.toggleStateReducer}
+		  onToggle={this.handleToggle}
+		  onReset={this.handleReset}
+		>
+		  {toggle => (
+			<div>
+			  <Switch
+				{...toggle.getTogglerProps({
+				  on: toggle.on,
+				})}
+			  />
+			  {timesClicked > 4 ? (
+				<div data-testid="notice">
+				  Whoa, you clicked too much!
+				  <br />
 				</div>
-			)}
+			  ) : timesClicked > 0 ? (
+				<div data-testid="click-count">
+				  Click count: {timesClicked}
+				</div>
+			  ) : null}
+			  <button onClick={toggle.reset}>Reset</button>
+			</div>
+		  )}
 		</Toggle>
-	)
-	// return (
-	// 	<Toggle onToggle={onToggle}>
-	// 		{({ on, getTogglerProps }) => (
-	// 			<div>
-	// 				{on ? 'The button is on' : 'The button is off'}
-	// 				<Switch {...getTogglerProps({on})} />
-	// 				<hr />
-	// 				<button 
-	// 					{...getTogglerProps({
-	// 						'aria-label':"custom-button",
-	// 						'aria-pressed': null,
-	// 						id:"custom-button-id",
-	// 						className: "custom-class",
-	// 						onClick:onButtonClick
-	// 					})}
-	// 					>
-	// 					{on ? 'on' : 'off'}
-	// 				</button>
-	// 			</div>
-	// 		)}
-	// 	</Toggle>
-	// )
-}
+	  )
+	}
+  }
+
 
 export default Usage;
