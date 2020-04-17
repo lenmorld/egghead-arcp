@@ -20,11 +20,6 @@ class Toggle extends React.Component {
 		renderUI,
 	}
 
-	static stateChangeTypes = {
-		reset: '__reset__',
-		toggle: '__toggle__'
-	}
-
 	initialState = { on: this.props.initialOn } // make this customizable by user
 	state = this.initialState
 
@@ -34,26 +29,23 @@ class Toggle extends React.Component {
 			const changesObject = typeof changes === 'function' ? changes(currentState) : changes;
 			// user's custom logic to modify state
 			const reducedChanges = this.props.stateReducer(currentState, changesObject);
-			// return reducedChanges;
-
-			const {type: ignoredType, ...onlyChanges} = reducedChanges
-			return onlyChanges;
-
+			return reducedChanges;
 		}, callback)
+		// this.props.stateReducer
 	}
 
-	toggle = ({type = Toggle.stateChangeTypes.toggle} = {}) =>
+	toggle = () =>
 		// this.setState(
 		this.internalSetState(
-			({ on }) => ({ on: !on, type }),
+			({ on }) => ({ on: !on }),
 			() => {
 				this.props.onToggle(this.state.on); // call custom from user
 			}
 		);
 
 	reset = () =>
-		// this.internalSetState(this.initialState, () => {
-		this.internalSetState({ ...this.internalSetState, type: Toggle.stateChangeTypes.reset }, () => {
+		// this.setState(this.initialState, () => {
+		this.internalSetState(this.initialState, () => {
 			this.props.onReset(this.state.on)	// call custom from user
 		})
 
@@ -68,10 +60,10 @@ class Toggle extends React.Component {
 
 	getTogglerProps = ({onClick, className, ...props}) => {
 		return {
-			onClick: callAll(onClick, () => this.toggle()),
+			...props,
+			onClick: callAll(onClick, this.toggle),
 			className: `${className} our-class-name`,
 			'aria-pressed': this.state.on,
-			...props,
 		}
 	}
 
@@ -102,10 +94,6 @@ class Usage extends React.Component {
 	// before we call setState in the Toggle component, 
 	// the consumer has a chance to modify the state we're about to set. 
 	toggleStateReducer = (state, changes) => {
-	  if (changes.type === 'forced') {
-		  return changes
-	  }
-
 	  if (this.state.timesClicked >= 4) {
 		return {...changes, on: false}
 	  }
@@ -119,27 +107,24 @@ class Usage extends React.Component {
 		  onToggle={this.handleToggle}
 		  onReset={this.handleReset}
 		>
-		  {({ on, toggle, reset, getTogglerProps }) => (
+		  {toggle => (
 			<div>
 			  <Switch
-				{...getTogglerProps({
-				  on: on,
+				{...toggle.getTogglerProps({
+				  on: toggle.on,
 				})}
 			  />
 			  {timesClicked > 4 ? (
 				<div data-testid="notice">
 				  Whoa, you clicked too much!
 				  <br />
-				  <button onClick={() => toggle({type: 'forced'})}>
-                    Force Toggle
-                  </button>
 				</div>
 			  ) : timesClicked > 0 ? (
 				<div data-testid="click-count">
 				  Click count: {timesClicked}
 				</div>
 			  ) : null}
-			  <button onClick={reset}>Reset</button>
+			  <button onClick={toggle.reset}>Reset</button>
 			</div>
 		  )}
 		</Toggle>
