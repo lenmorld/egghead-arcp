@@ -1,11 +1,16 @@
 /*
-	Lesson 14 Support Control props for all state
+	Lesson 15 state change handler for all control props
 */
 
 import React from "react";
 import { Switch } from "./Switch";
 
 class Toggle extends React.Component {
+	static defaultProps = {
+		onToggle: () => {},
+		onStateChange: () => {},
+	}
+
 	state = {on: false}
 
 	// controlled if a prop is passed
@@ -13,15 +18,10 @@ class Toggle extends React.Component {
 		return this.props[prop] !== undefined
 	} 
 
-	getState() {
-		// prioritize props, fallback to state if props undefined
-		// return {
-		// 	on: this.isControlled('on') ? this.props.on : this.state.on
-		// }
-
+	getState(state = this.state) {
 		// create an object as a combination of prop value if controlled
 		// and the shallow-copy of state if not
-		return Object.entries(this.state).reduce((combinedState, [key, value]) => {
+		return Object.entries(state).reduce((combinedState, [key, value]) => {
 			if (this.isControlled(key)) {
 				combinedState[key] = this.props[key]
 			} else {
@@ -32,19 +32,42 @@ class Toggle extends React.Component {
 		}, {})
 	}
 
-	toggle = () => {
-		// if controlled by prop, no need to call setState to save an unneeded re-render
-		if (this.isControlled('on')) {
-			// flip getState()
-			this.props.onToggle(!this.getState().on)
-		} else {
-			this.setState(
-				({on}) => ({on: !on}),
-				() => {
-					this.props.onToggle(this.getState().on)
+	internalSetState(changes, callback) {
+		let allChanges
+
+		// changes are either object representing changes to be done
+		// or a state updater function
+		this.setState(state => {
+			// state updater function
+
+			const combinedState = this.getState(state)
+			const changesObject = typeof changes === 'function' ? changes(combinedState) : changes
+
+			allChanges = changesObject
+			const nonControlledChanges = Object.entries(changesObject).reduce((newChanges, [key, value]) => {
+				if (!this.isControlled(key)) {
+					newChanges[key] = value
 				}
-			)
-		}
+
+				return newChanges
+			}, {})
+
+			return Object.keys(nonControlledChanges).length ? nonControlledChanges : null
+		}, () => {
+			// this.props.onStateChange(this.getState())
+			this.props.onStateChange(allChanges)
+			callback
+		})
+	}
+
+
+	toggle = () => {
+		this.internalSetState(
+			({on}) => ({on: !on}),
+			() => {
+				this.props.onToggle(this.getState().on)
+			}
+		)
 	}
 	
 	render() {
@@ -58,9 +81,13 @@ class Toggle extends React.Component {
 class Usage extends React.Component {
 	state = {bothOn: false, snowflake: false}
 
-	handleToggle = on => {
-	  this.setState({bothOn: on})
-	}
+	// handleToggle = on => {
+	//   this.setState({bothOn: on})
+	// }
+
+	handleStateChange = ({on}) => {
+		this.setState({bothOn: on})
+	  }
 
 	handleToggle2 = on => {
 		this.setState({snowflake: on})
@@ -71,15 +98,15 @@ class Usage extends React.Component {
 		<div>
 		  <Toggle
 			on={bothOn}
-			onToggle={this.handleToggle}
+			onStateChange={this.handleStateChange}
 		  />
 		  <Toggle
 			on={bothOn}
-			onToggle={this.handleToggle}
+			onStateChange={this.handleStateChange}
 		  />
 		{/* no on Prop, toggles the others, but others cannot toggle it */}
 		<Toggle
-			onToggle={this.handleToggle}
+			onStateChange={this.handleStateChange}
 		  />
 
 		{/* completely separate change handler 
@@ -87,7 +114,7 @@ class Usage extends React.Component {
 		*/}
 		<Toggle
 			on={this.state.snowflake}
-			onToggle={this.handleToggle2}
+			onStateChange={this.handleToggle2}
 		  />
 		</div>
 	  )
