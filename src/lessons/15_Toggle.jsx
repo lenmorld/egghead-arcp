@@ -1,5 +1,5 @@
 /*
-	Lesson 16 Improve the usability of Control Props with state change types
+	Lesson 15 state change handler for all control props
 */
 
 import React from "react";
@@ -9,12 +9,6 @@ class Toggle extends React.Component {
 	static defaultProps = {
 		onToggle: () => {},
 		onStateChange: () => {},
-	}
-
-	static stateChangeTypes = {
-		toggleOn: '__toggle_on__',
-		toggleOff: '__toggle_off__',
-		toggle: '__toggle__',
 	}
 
 	state = {on: false}
@@ -50,9 +44,7 @@ class Toggle extends React.Component {
 			const changesObject = typeof changes === 'function' ? changes(combinedState) : changes
 
 			allChanges = changesObject
-			const {type: ignoredType, ...onlyChanges} = changesObject
-
-			const nonControlledChanges = Object.entries(onlyChanges).reduce((newChanges, [key, value]) => {
+			const nonControlledChanges = Object.entries(changesObject).reduce((newChanges, [key, value]) => {
 				if (!this.isControlled(key)) {
 					newChanges[key] = value
 				}
@@ -63,42 +55,25 @@ class Toggle extends React.Component {
 			return Object.keys(nonControlledChanges).length ? nonControlledChanges : null
 		}, () => {
 			// this.props.onStateChange(this.getState())
-			this.props.onStateChange(allChanges, this.getState())
+			this.props.onStateChange(allChanges)
 			callback
 		})
 	}
 
 
-	toggle = ({ on: newState, type} ={}) => {
+	toggle = () => {
 		this.internalSetState(
-			({on}) => ({
-				on: typeof newState === 'boolean' ? newState : !on,
-				type
-			}),
+			({on}) => ({on: !on}),
 			() => {
 				this.props.onToggle(this.getState().on)
 			}
 		)
 	}
 	
-	// new methods
-	handleSwitchClick = () => this.toggle({ type: Toggle.stateChangeTypes.toggle })
-	handleOffClick = () => this.toggle({on: false, type: Toggle.stateChangeTypes.toggleOff})
-	handleOnClick = () => this.toggle({on: true, type: Toggle.stateChangeTypes.toggleOn})
-
 	render() {
-		// return <Switch on={this.getState().on} onClick={this.toggle} />
-
-		return (
-			<div>
-				<Switch 
-					on={this.getState().on}
-					onClick={this.handleSwitchClick}
-				/>
-				<button onClick={this.handleOffClick}>off</button>
-				<button onClick={this.handleOnClick}>on</button>
-			</div>
-		)
+		// return <Switch on={this.state.on} onClick={this.toggle} />
+		// return <Switch on={this.props.on} onClick={this.toggle} />
+		return <Switch on={this.getState().on} onClick={this.toggle} />
 	}
 }
 
@@ -110,28 +85,9 @@ class Usage extends React.Component {
 	//   this.setState({bothOn: on})
 	// }
 
-	// USE CASE 1:
-	// handleStateChange = (changes) => {
-	// 	if (changes.type === 'toggle-on' || changes.type === 'toggle-off') {
-	// 		return
-	// 	}
-	// 	this.setState({bothOn: changes.on})
-	// }
-
-	// USE CASE 2:
-	lastWasButton = false
-	handleStateChange = (changes) => {
-		const isButtonChange = 
-			// changes.type === 'toggle-on' || changes.type === 'toggle-off'
-			changes.type === Toggle.stateChangeTypes.toggleOn || changes.type === Toggle.stateChangeTypes.toggleOff
-
-		if ((this.lastWasButton && isButtonChange) || changes.type === Toggle.stateChangeTypes.toggle) {
-			this.setState({bothOn: changes.on})
-			this.lastWasButton = false
-		} else  {
-			this.lastWasButton = isButtonChange
-		}
-	}
+	handleStateChange = ({on}) => {
+		this.setState({bothOn: on})
+	  }
 
 	handleToggle2 = on => {
 		this.setState({snowflake: on})
@@ -149,17 +105,17 @@ class Usage extends React.Component {
 			onStateChange={this.handleStateChange}
 		  />
 		{/* no on Prop, toggles the others, but others cannot toggle it */}
-		{/* <Toggle
+		<Toggle
 			onStateChange={this.handleStateChange}
-		  /> */}
+		  />
 
 		{/* completely separate change handler 
 			but kind of useless since Toggle already has its own state
 		*/}
-		{/* <Toggle
+		<Toggle
 			on={this.state.snowflake}
 			onStateChange={this.handleToggle2}
-		  /> */}
+		  />
 		</div>
 	  )
 	}
