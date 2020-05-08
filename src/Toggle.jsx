@@ -8,6 +8,7 @@ import { Switch } from "./Switch";
 class Toggle extends React.Component {
 	state = {on: false}
 
+	// controlled if a prop is passed
 	isControlled (prop) {
 		return this.props[prop] !== undefined
 	} 
@@ -43,10 +44,15 @@ class Toggle extends React.Component {
 
 
 class Usage extends React.Component {
-	state = {bothOn: false}
+	state = {bothOn: false, snowflake: false}
+
 	handleToggle = on => {
 	  this.setState({bothOn: on})
 	}
+
+	handleToggle2 = on => {
+		this.setState({snowflake: on})
+	  }
 	render() {
 	  const {bothOn} = this.state
 	  return (
@@ -59,8 +65,17 @@ class Usage extends React.Component {
 			on={bothOn}
 			onToggle={this.handleToggle}
 		  />
+		{/* no on Prop, toggles the others, but others cannot toggle it */}
 		<Toggle
 			onToggle={this.handleToggle}
+		  />
+
+		{/* completely separate change handler 
+			but kind of useless since Toggle already has its own state
+		*/}
+		<Toggle
+			on={this.state.snowflake}
+			onToggle={this.handleToggle2}
 		  />
 		</div>
 	  )
