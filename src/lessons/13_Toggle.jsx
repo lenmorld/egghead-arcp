@@ -1,5 +1,5 @@
 /*
-	Lesson 14 Support Control props for all state
+	Lesson 13 Controlled React Components using Control Props
 */
 
 import React from "react";
@@ -15,21 +15,9 @@ class Toggle extends React.Component {
 
 	getState() {
 		// prioritize props, fallback to state if props undefined
-		// return {
-		// 	on: this.isControlled('on') ? this.props.on : this.state.on
-		// }
-
-		// create an object as a combination of prop value if controlled
-		// and the shallow-copy of state if not
-		return Object.entries(this.state).reduce((combinedState, [key, value]) => {
-			if (this.isControlled(key)) {
-				combinedState[key] = this.props[key]
-			} else {
-				combinedState[key] = value
-			}
-
-			return combinedState
-		}, {})
+		return {
+			on: this.isControlled('on') ? this.props.on : this.state.on
+		}
 	}
 
 	toggle = () => {
