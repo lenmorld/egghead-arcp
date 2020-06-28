@@ -34,14 +34,39 @@ function withToggle(Component) {
 			}
 		</Toggle.Consumer>
 	)
+
+	// return Wrapper
+
+	// put all static components of Component to Wrapper...
+	// so users (Layer2, Layer4) can assume they are interacting with the
+	// component, not the wrapper
+	// return hoistNonReactStatics(Wrapper, Component)
+
+	// put a better name
 	Wrapper.displayName = `withToggle(${Component.displayName || Component.Name})`
 	return hoistNonReactStatics(React.forwardRef(Wrapper), Component)
 }
 
+// ref
 const myRef = React.createRef()
 
-const Layer1 = () => <Layer2 ref={myRef} />
+// const Layer1 = () => <Layer2 ref={myRef} />
+const Layer1 = () => <Layer2 />
+// const Layer2 = () =>
+// 	<Toggle.Consumer>
+// 		{({ on }) => (
+// 			<Fragment>
+// 				{on ? 'The button is on' : 'The button is off'}
+// 				<Layer3 />
+// 			</Fragment>
+// 		)}
 
+// 	</Toggle.Consumer>
+
+// HoC - instead of wrapping explicitly in <Toggle.Consumer>
+// use withToggle instead
+
+// use better name with a named function
 const Layer2 = withToggle(function Layer2({ toggle: { on } }) {
 	return (
 		<Fragment>
@@ -52,6 +77,11 @@ const Layer2 = withToggle(function Layer2({ toggle: { on } }) {
 })
 
 const Layer3 = () => <Layer4 />
+
+// const Layer4 = () => (
+// 	<Toggle.Consumer>
+// 		{({ on, toggle }) => <Switch on={on} onClick={toggle} />}
+// 	</Toggle.Consumer>)
 
 const Layer4 = withToggle(function Layer4({ toggle: { on, toggle } }) {
 	return <Switch on={on} onClick={toggle} />
@@ -64,5 +94,6 @@ function Usage({
 		<Layer1 />
 	</Toggle>
 }
+
 
 export default Usage;
